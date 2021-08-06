@@ -1,3 +1,6 @@
+from enum import Enum, unique
+
+
 def holy_creation(func):
     def wrapper(*args, **kwargs):
         print('I am creating a living thing!')
@@ -8,8 +11,15 @@ def holy_creation(func):
     return wrapper
 
 
+@unique
+class DietCodes(Enum):
+    OMNIVORE = 0
+    CARNIVORE = 1
+    VEGETARIAN = 2
+
+
 class Creature:
-    def __init__(self, eyes, diet, legs, arms, holy=False):
+    def __init__(self, eyes: int, diet: DietCodes, legs: int, arms: int, holy=False):
         if holy:
             self.holy_create(eyes=eyes, diet=diet, legs=legs, arms=arms)
         else:
