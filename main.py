@@ -1,16 +1,25 @@
-# This is a sample Python script.
+from fastapi import FastAPI
+from animal_methods.creatures import holy_creation, DietCodes, Creature, Plant
+from animal_methods import the_zoo
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+app = FastAPI()
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Zoo!"}
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+@app.get("/users/me")
+async def read_user_me():
+    return {"user_id": "the current user"}
+
+
+@app.get("/users/{user_id}")
+async def read_user(user_id: str):
+    return {"user_id": user_id}
+
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: int):
+    return {"item_id": item_id}

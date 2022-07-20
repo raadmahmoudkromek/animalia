@@ -1,5 +1,5 @@
 import unittest
-from creatures import Creature, DietCodes
+from animal_methods.creatures import Creature, DietCodes
 
 
 class TestCreatures(unittest.TestCase):

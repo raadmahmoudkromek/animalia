@@ -7,7 +7,6 @@ def holy_creation(func):
         created_thing = func(*args, **kwargs)
         print('I have... CREATED!!')
         return created_thing
-
     return wrapper
 
 
