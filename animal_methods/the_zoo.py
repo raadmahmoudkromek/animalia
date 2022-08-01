@@ -9,11 +9,15 @@ class EnclosureName(str, Enum):
     small_mammals = 'small_mammals'
     reptiles = 'reptiles'
     primates = 'primates'
+    unnameable_horrors = 'unnameable horrors'
 
 
-class enclosure:
-    def __init__(self, enclosure_id, enclosure_size, enclosure_name):
-        self.enclosure_id = enclosure_id
+class Enclosure:
+    def __init__(self, enclosure_size, enclosure_name: EnclosureName):
+        try:
+            assert type(enclosure_name) is EnclosureName
+        except AssertionError as e:
+            logger.error(e)
         self.enclosure_size = enclosure_size
         self.animals_contained = []
         self.enclosure_name = enclosure_name
@@ -41,7 +45,17 @@ async def get_enclosure(enclosure_name: EnclosureName):
         return {"enclosure_name": enclosure_name,
                 "message": "Welcome to the primate enclosure. The Orang-utans are friendly, but mind the macaques!"}
 
+    if enclosure_name == EnclosureName.unnameable_horrors:
+        return {"enclosure_name": enclosure_name,
+                "message": "Welcome to the enclosure for the horrifying otherworldly monsters. Please keep children under control, they frighten the monsters."}
     else:
         error_string = "We don't have an enclosure by that name!"
         logger.error(ValueError())
         raise ValueError(error_string)
+
+
+@app.get("/leaflets/{leaflet_path:path}")
+async def read_leaflet(leaflet_path: str):
+    with open(leaflet_path, 'r') as leaflet:
+        leaflet_contents = leaflet.read()
+    return {"leaflet_contents": leaflet_contents}
