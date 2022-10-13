@@ -1,7 +1,9 @@
 from enum import Enum
-from animal_methods.creatures import Creature, DietCodes
+from animal_methods.creatures import Creature, HolyCreature, DietCodes
 from typing import Dict, List
 import logging
+from pydantic import BaseModel
+from fast_API_base import app
 
 logger = logging.getLogger(__name__)
 
@@ -11,18 +13,26 @@ class EnclosureName(Enum):
     reptiles = 2
     primates = 3
     unnameable_horrors = 4
+    human_animal_hybrids = 5
 
 
-class Enclosure:
-    def __init__(self, enclosure_size: int, enclosure_name: EnclosureName, welcome_message: str):
+class Enclosure(BaseModel):
+    enclosure_size: int
+    animals_contained: List[Creature]
+    enclosure_name: EnclosureName
+    welcome_message: str
+
+    def __init__(self, enclosure_size: int, enclosure_name: EnclosureName, welcome_message: str,
+                 animals_contained: List[Creature] = None):
+        if animals_contained is None:
+            animals_contained = []
         try:
             assert type(enclosure_name) is EnclosureName
         except AssertionError as e:
             logger.error(e)
-        self.enclosure_size = enclosure_size
-        self.animals_contained: List[Creature] = []
-        self.enclosure_name = enclosure_name
-        self.welcome_message = welcome_message
+        super().__init__(enclosure_size=enclosure_size, enclosure_name=enclosure_name,
+                         animals_contained=animals_contained,
+                         welcome_message=welcome_message)
 
     def add_animal(self, animal: Creature):
         try:
@@ -41,9 +51,11 @@ class Enclosure:
                     animal.name, self.enclosure_name.name, len(self.animals_contained), self.enclosure_size)}
 
 
-class Zoo:
+class Zoo(BaseModel):
+    enclosures: Dict[str, Enclosure]
+
     def __init__(self):
-        self.enclosures: Dict[str, Enclosure] = {}
+        super().__init__(enclosures={})
         self.__add_enclosure__(enclosure_name=EnclosureName.small_mammals, enclosure_size=10,
                                welcome_message="Welcome to the small mammal enclosure. Cute!")
         self.__add_enclosure__(enclosure_name=EnclosureName.primates, enclosure_size=10,
@@ -54,12 +66,16 @@ class Zoo:
                                welcome_message="Welcome to the enclosure for the horrifying otherworldly monsters. Please keep children under control, they frighten the beings.")
 
     def __add_enclosure__(self, enclosure_name: EnclosureName, enclosure_size: int, welcome_message: str):
+        assert enclosure_name.name not in self.enclosures.keys()
         self.enclosures[enclosure_name.name] = Enclosure(enclosure_size=enclosure_size, enclosure_name=enclosure_name,
                                                          welcome_message=welcome_message)
 
     def add_animal(self, enclosure_name: EnclosureName, creature_name: str, eyes: int, diet: DietCodes, legs: int,
                    arms: int, holy: bool):
-        new_creature = Creature(name=creature_name, eyes=eyes, diet=diet, legs=legs, arms=arms, holy=holy)
+        if holy:
+            new_creature = HolyCreature(name=creature_name, eyes=eyes, diet=diet, legs=legs, arms=arms)
+        else:
+            new_creature = Creature(name=creature_name, eyes=eyes, diet=diet, legs=legs, arms=arms)
         try:
             assert new_creature not in [creature.name for enc in self.enclosures.values() for creature in
                                         enc.animals_contained]
@@ -70,3 +86,6 @@ class Zoo:
                     "message": "There is already a creature by the name of {} in the zoo!".format(creature_name)}
 
         return self.enclosures[enclosure_name.name].add_animal(new_creature)
+
+
+The_Zoo = Zoo()

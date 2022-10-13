@@ -1,8 +1,7 @@
-from animal_methods.the_zoo import logger
+from animal_methods.base_zoo_classes import logger
 from fast_API_base import app
 
-
-@app.get("/leaflets/{leaflet_path:path}")
+@app.get("/Zoos/The_Zoo/leaflets/{leaflet_path:path}")
 async def read_leaflet(leaflet_path: str):
     with open(leaflet_path, 'r') as leaflet:
         leaflet_contents = leaflet.read()
